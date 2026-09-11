@@ -1,23 +1,1651 @@
 <!DOCTYPE html>
-<html>
-    <head>
-        <!--link will connect this part to style.css-->
-    <title>ScreenTime Insight</title>
-    <link rel="stylesheet" href="style.css">
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ScreenSense AI</title>
+
+  <!-- React -->
+  <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: Inter, Arial, sans-serif;
+      background: #f5f7fb;
+      color: #172033;
+    }
+
+    button,
+    input,
+    select {
+      font: inherit;
+    }
+
+    button {
+      cursor: pointer;
+      border: none;
+    }
+
+    .app {
+      min-height: 100vh;
+    }
+
+    /* NAVBAR */
+    .navbar {
+      height: 70px;
+      background: #ffffff;
+      border-bottom: 1px solid #e7eaf0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 6%;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .logo {
+      font-size: 23px;
+      font-weight: 800;
+      color: #635bff;
+    }
+
+    .logo span {
+      color: #111827;
+    }
+
+    .nav-buttons {
+      display: flex;
+      gap: 10px;
+    }
+
+    .btn {
+      padding: 11px 18px;
+      border-radius: 10px;
+      font-weight: 600;
+      transition: .2s;
+    }
+
+    .btn:hover {
+      transform: translateY(-1px);
+    }
+
+    .btn-primary {
+      background: #635bff;
+      color: white;
+    }
+
+    .btn-secondary {
+      background: #eef0ff;
+      color: #5149db;
+    }
+
+    .btn-danger {
+      background: #fee2e2;
+      color: #dc2626;
+    }
+
+    /* HERO */
+    .hero {
+      max-width: 1200px;
+      margin: auto;
+      padding: 80px 25px;
+      display: grid;
+      grid-template-columns: 1.2fr .8fr;
+      gap: 50px;
+      align-items: center;
+    }
+
+    .hero h1 {
+      font-size: 55px;
+      line-height: 1.05;
+      margin-bottom: 20px;
+    }
+
+    .gradient {
+      background: linear-gradient(90deg, #635bff, #9b5cff);
+      -webkit-background-clip: text;
+      color: transparent;
+    }
+
+    .hero p {
+      color: #667085;
+      font-size: 18px;
+      line-height: 1.7;
+      max-width: 650px;
+      margin-bottom: 28px;
+    }
+
+    .hero-card {
+      background: white;
+      border-radius: 24px;
+      padding: 30px;
+      box-shadow: 0 20px 60px rgba(25, 30, 60, .12);
+    }
+
+    .phone {
+      background: #111827;
+      border-radius: 30px;
+      padding: 15px;
+      max-width: 300px;
+      margin: auto;
+    }
+
+    .phone-screen {
+      background: #f8fafc;
+      border-radius: 22px;
+      padding: 20px;
+    }
+
+    .mini-stat {
+      padding: 15px;
+      background: white;
+      border-radius: 14px;
+      margin-bottom: 10px;
+    }
+
+    /* AUTH */
+    .auth-page {
+      min-height: calc(100vh - 70px);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 30px;
+    }
+
+    .auth-card {
+      background: white;
+      width: 100%;
+      max-width: 430px;
+      padding: 35px;
+      border-radius: 20px;
+      box-shadow: 0 15px 50px rgba(0,0,0,.08);
+    }
+
+    .auth-card h2 {
+      margin-bottom: 8px;
+    }
+
+    .auth-card p {
+      color: #667085;
+      margin-bottom: 25px;
+    }
+
+    .form-group {
+      margin-bottom: 17px;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 7px;
+      font-weight: 600;
+      font-size: 14px;
+    }
+
+    .input {
+      width: 100%;
+      padding: 12px 14px;
+      border: 1px solid #d9dee8;
+      border-radius: 10px;
+      outline: none;
+    }
+
+    .input:focus {
+      border-color: #635bff;
+      box-shadow: 0 0 0 3px #635bff18;
+    }
+
+    .error {
+      background: #fee2e2;
+      color: #b91c1c;
+      padding: 11px;
+      border-radius: 9px;
+      margin-bottom: 15px;
+      font-size: 14px;
+    }
+
+    .success {
+      background: #dcfce7;
+      color: #15803d;
+      padding: 11px;
+      border-radius: 9px;
+      margin-bottom: 15px;
+      font-size: 14px;
+    }
+
+    /* DASHBOARD */
+    .dashboard {
+      max-width: 1250px;
+      margin: auto;
+      padding: 35px 22px;
+    }
+
+    .dashboard-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 15px;
+      margin-bottom: 25px;
+    }
+
+    .dashboard-header p {
+      color: #667085;
+      margin-top: 5px;
+    }
+
+    .grid {
+      display: grid;
+      gap: 18px;
+    }
+
+    .stats {
+      grid-template-columns: repeat(4, 1fr);
+    }
+
+    .two {
+      grid-template-columns: 1fr 1fr;
+    }
+
+    .card {
+      background: white;
+      padding: 22px;
+      border-radius: 17px;
+      border: 1px solid #e9ecf2;
+    }
+
+    .stat-title {
+      color: #667085;
+      font-size: 14px;
+      margin-bottom: 8px;
+    }
+
+    .stat-value {
+      font-size: 30px;
+      font-weight: 800;
+    }
+
+    .stat-icon {
+      font-size: 26px;
+      margin-bottom: 10px;
+    }
+
+    .upload {
+      border: 2px dashed #bfc4ff;
+      background: #f7f7ff;
+      text-align: center;
+      padding: 35px;
+      border-radius: 15px;
+    }
+
+    .upload input {
+      margin-top: 15px;
+    }
+
+    .chart-container {
+      height: 350px;
+      position: relative;
+    }
+
+    /* INSIGHTS */
+    .insight {
+      display: flex;
+      gap: 15px;
+      padding: 16px;
+      border-radius: 13px;
+      margin-top: 12px;
+      background: #f8fafc;
+      border-left: 4px solid #635bff;
+    }
+
+    .insight strong {
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    .task {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 14px;
+      background: #f8fafc;
+      border-radius: 12px;
+      margin-top: 10px;
+    }
+
+    .task.done {
+      opacity: .55;
+      text-decoration: line-through;
+    }
+
+    .task button {
+      background: #dcfce7;
+      color: #15803d;
+      padding: 7px 10px;
+      border-radius: 8px;
+    }
+
+    /* TABLE */
+    .table-wrapper {
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 15px;
+    }
+
+    th,
+    td {
+      text-align: left;
+      padding: 12px;
+      border-bottom: 1px solid #eee;
+      white-space: nowrap;
+    }
+
+    th {
+      background: #f8fafc;
+    }
+
+    /* LOADING */
+    .loading {
+      text-align: center;
+      padding: 30px;
+    }
+
+    .spinner {
+      width: 35px;
+      height: 35px;
+      border: 4px solid #ddd;
+      border-top-color: #635bff;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: auto auto 12px;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    /* FOOTER */
+    footer {
+      text-align: center;
+      color: #98a2b3;
+      padding: 40px;
+    }
+
+    /* MOBILE */
+    @media(max-width: 900px) {
+      .hero {
+        grid-template-columns: 1fr;
+        padding-top: 50px;
+      }
+
+      .hero h1 {
+        font-size: 42px;
+      }
+
+      .stats {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .two {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media(max-width: 600px) {
+      .navbar {
+        padding: 0 15px;
+      }
+
+      .logo {
+        font-size: 19px;
+      }
+
+      .nav-buttons .btn {
+        padding: 8px 10px;
+      }
+
+      .hero {
+        padding: 45px 18px;
+      }
+
+      .hero h1 {
+        font-size: 36px;
+      }
+
+      .stats {
+        grid-template-columns: 1fr;
+      }
+
+      .dashboard {
+        padding: 25px 15px;
+      }
+
+      .dashboard-header {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+    }
+  </style>
 </head>
-    <body>
-        <nav>
-            <h2>ScreenTime insight</h2>
-        </nav>
 
-        <section class="hero">
-         <h1>know where your time goes </h1>
-         <p>Analyze your phone usage and get meaningful insights.</p>
-        <br>
+<body>
 
-        <a href="upload.html">
-        <button>Upload your CSV</button>
-        </a>
-        </section>
-    </body>
+<div id="root"></div>
+
+<script type="text/babel">
+
+const { useState, useEffect, useRef } = React;
+
+/* ============================================================
+   LOCAL DATABASE
+   Beginner replacement for Supabase
+============================================================ */
+
+const DB = {
+  users: JSON.parse(localStorage.getItem("ss_users") || "[]"),
+  saveUsers() {
+    localStorage.setItem("ss_users", JSON.stringify(this.users));
+  }
+};
+
+function getCurrentUser() {
+  return JSON.parse(localStorage.getItem("ss_current_user") || "null");
+}
+
+function setCurrentUser(user) {
+  if (user) {
+    localStorage.setItem("ss_current_user", JSON.stringify(user));
+  } else {
+    localStorage.removeItem("ss_current_user");
+  }
+}
+
+/* ============================================================
+   CSV PARSER
+============================================================ */
+
+function parseCSV(text) {
+
+  const lines = text.trim().split(/\r?\n/);
+
+  if (lines.length < 2) {
+    throw new Error("CSV file does not contain enough data.");
+  }
+
+  const headers = lines[0]
+    .split(",")
+    .map(h => h.trim().toLowerCase());
+
+  const rows = lines.slice(1).map(line => {
+
+    const values = line.split(",");
+
+    const row = {};
+
+    headers.forEach((header, index) => {
+      row[header] = values[index] ? values[index].trim() : "";
+    });
+
+    return row;
+  });
+
+  return rows;
+}
+
+/* ============================================================
+   SCREEN TIME ANALYZER
+============================================================ */
+
+function analyzeScreenTime(rows) {
+
+  let totalMinutes = 0;
+  let socialMinutes = 0;
+  let entertainmentMinutes = 0;
+  let studyMinutes = 0;
+
+  const appUsage = {};
+
+  rows.forEach(row => {
+
+    const app =
+      row.app ||
+      row.application ||
+      row.name ||
+      "Unknown";
+
+    const minutes = Number(
+      row.minutes ||
+      row.duration ||
+      row.screen_time ||
+      0
+    );
+
+    if (isNaN(minutes)) return;
+
+    totalMinutes += minutes;
+
+    appUsage[app] = (appUsage[app] || 0) + minutes;
+
+    const lower = app.toLowerCase();
+
+    if (
+      lower.includes("instagram") ||
+      lower.includes("facebook") ||
+      lower.includes("snapchat") ||
+      lower.includes("tiktok") ||
+      lower.includes("social") ||
+      lower.includes("whatsapp")
+    ) {
+      socialMinutes += minutes;
+    }
+
+    if (
+      lower.includes("youtube") ||
+      lower.includes("netflix") ||
+      lower.includes("game") ||
+      lower.includes("entertainment")
+    ) {
+      entertainmentMinutes += minutes;
+    }
+
+    if (
+      lower.includes("study") ||
+      lower.includes("google") ||
+      lower.includes("coursera") ||
+      lower.includes("udemy") ||
+      lower.includes("leetcode")
+    ) {
+      studyMinutes += minutes;
+    }
+
+  });
+
+  const sortedApps = Object.entries(appUsage)
+    .sort((a,b) => b[1] - a[1]);
+
+  const topApp = sortedApps[0] || ["Unknown", 0];
+
+  return {
+    totalMinutes,
+    socialMinutes,
+    entertainmentMinutes,
+    studyMinutes,
+    appUsage,
+    sortedApps,
+    topApp
+  };
+}
+
+/* ============================================================
+   AI STUDENT COACH
+============================================================ */
+
+function generateInsights(data, goal) {
+
+  const insights = [];
+
+  const totalHours = data.totalMinutes / 60;
+
+  if (data.socialMinutes > 120) {
+
+    insights.push({
+      icon: "📱",
+      title: "Social media is taking a large part of your day",
+      text:
+        `You spent around ${Math.round(data.socialMinutes / 60)} hours on social apps. Try reducing this by 30–45 minutes and convert that time into focused work.`
+    });
+
+  } else {
+
+    insights.push({
+      icon: "👍",
+      title: "Your social media usage is relatively controlled",
+      text:
+        "Keep the habit consistent and protect your distraction-free study/work periods."
+    });
+
+  }
+
+  if (data.studyMinutes < 60) {
+
+    insights.push({
+      icon: "📚",
+      title: "Increase productive screen time",
+      text:
+        "Consider replacing some entertainment time with coding, reading, courses, or project work."
+    });
+
+  } else {
+
+    insights.push({
+      icon: "🚀",
+      title: "Good productive usage",
+      text:
+        "You are already using part of your screen time productively. Build a consistent daily learning routine."
+    });
+
+  }
+
+  if (data.entertainmentMinutes > 120) {
+
+    insights.push({
+      icon: "🎮",
+      title: "Entertainment usage is high",
+      text:
+        "Set an entertainment limit and use the recovered time for your main goal."
+    });
+
+  }
+
+  if (goal) {
+
+    insights.push({
+      icon: "🎯",
+      title: `Your goal: ${goal}`,
+      text:
+        `A realistic first step is to recover 30–60 minutes from unnecessary scrolling and dedicate it to ${goal}.`
+    });
+
+  }
+
+  if (totalHours > 8) {
+
+    insights.push({
+      icon: "⏰",
+      title: "Your total screen time is high",
+      text:
+        "Create phone-free blocks during study, work, meals, and before sleeping."
+    });
+
+  }
+
+  return insights;
+}
+
+/* ============================================================
+   NAVBAR
+============================================================ */
+
+function Navbar({ user, setPage }) {
+
+  return (
+    <nav className="navbar">
+
+      <div className="logo">
+        ScreenSense <span>AI</span>
+      </div>
+
+      <div className="nav-buttons">
+
+        {user ? (
+          <>
+            <button
+              className="btn btn-secondary"
+              onClick={() => setPage("dashboard")}
+            >
+              Dashboard
+            </button>
+
+            {user.email === "admin@screensense.ai" && (
+              <button
+                className="btn btn-secondary"
+                onClick={() => setPage("admin")}
+              >
+                Admin
+              </button>
+            )}
+
+            <button
+              className="btn btn-danger"
+              onClick={() => {
+                setCurrentUser(null);
+                setPage("home");
+              }}
+            >
+              Logout
+            </button>
+          </>
+        ) : (
+          <>
+            <button
+              className="btn btn-secondary"
+              onClick={() => setPage("login")}
+            >
+              Login
+            </button>
+
+            <button
+              className="btn btn-primary"
+              onClick={() => setPage("signup")}
+            >
+              Get Started
+            </button>
+          </>
+        )}
+
+      </div>
+
+    </nav>
+  );
+}
+
+/* ============================================================
+   HOME
+============================================================ */
+
+function Home({ setPage }) {
+
+  return (
+    <>
+
+      <section className="hero">
+
+        <div>
+
+          <h1>
+            Turn your screen time into
+            <span className="gradient"> real progress.</span>
+          </h1>
+
+          <p>
+            ScreenSense AI analyzes your phone usage and converts
+            meaningless scrolling into personalized actions for your
+            study, career and future goals.
+          </p>
+
+          <button
+            className="btn btn-primary"
+            onClick={() => setPage("signup")}
+          >
+            Analyze My Screen Time →
+          </button>
+
+        </div>
+
+        <div className="hero-card">
+
+          <div className="phone">
+
+            <div className="phone-screen">
+
+              <h3>Today's Analysis</h3>
+
+              <br />
+
+              <div className="mini-stat">
+                📱 Screen Time
+                <strong>6h 42m</strong>
+              </div>
+
+              <div className="mini-stat">
+                🎯 Reclaimable Time
+                <strong>1h 38m</strong>
+              </div>
+
+              <div className="mini-stat">
+                🚀 AI Recommendation
+                <strong>Practice coding</strong>
+              </div>
+
+            </div>
+
+          </div>
+
+        </div>
+
+      </section>
+
+      <footer>
+        ScreenSense AI © 2026 • Built for smarter digital habits
+      </footer>
+
+    </>
+  );
+}
+
+/* ============================================================
+   AUTH
+============================================================ */
+
+function Auth({ mode, setPage, setUser }) {
+
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  function submit(e) {
+
+    e.preventDefault();
+
+    setError("");
+
+    if (!email || !password) {
+      setError("Please enter email and password.");
+      return;
+    }
+
+    if (password.length < 6) {
+      setError("Password must contain at least 6 characters.");
+      return;
+    }
+
+    setLoading(true);
+
+    setTimeout(() => {
+
+      if (mode === "signup") {
+
+        if (!name) {
+          setError("Please enter your name.");
+          setLoading(false);
+          return;
+        }
+
+        const exists = DB.users.find(
+          u => u.email === email
+        );
+
+        if (exists) {
+          setError("An account with this email already exists.");
+          setLoading(false);
+          return;
+        }
+
+        const user = {
+          id: Date.now(),
+          name,
+          email,
+          password
+        };
+
+        DB.users.push(user);
+        DB.saveUsers();
+
+        setCurrentUser(user);
+        setUser(user);
+        setPage("dashboard");
+
+      } else {
+
+        const user = DB.users.find(
+          u => u.email === email &&
+               u.password === password
+        );
+
+        if (!user) {
+          setError("Invalid email or password.");
+          setLoading(false);
+          return;
+        }
+
+        setCurrentUser(user);
+        setUser(user);
+        setPage("dashboard");
+
+      }
+
+    }, 700);
+  }
+
+  return (
+
+    <div className="auth-page">
+
+      <form className="auth-card" onSubmit={submit}>
+
+        <h2>
+          {mode === "login"
+            ? "Welcome back 👋"
+            : "Create your account 🚀"}
+        </h2>
+
+        <p>
+          {mode === "login"
+            ? "Continue improving your digital habits."
+            : "Start understanding where your time goes."}
+        </p>
+
+        {error && (
+          <div className="error">{error}</div>
+        )}
+
+        {mode === "signup" && (
+
+          <div className="form-group">
+
+            <label>Name</label>
+
+            <input
+              className="input"
+              placeholder="Your name"
+              value={name}
+              onChange={e => setName(e.target.value)}
+            />
+
+          </div>
+
+        )}
+
+        <div className="form-group">
+
+          <label>Email</label>
+
+          <input
+            className="input"
+            type="email"
+            placeholder="you@example.com"
+            value={email}
+            onChange={e => setEmail(e.target.value)}
+          />
+
+        </div>
+
+        <div className="form-group">
+
+          <label>Password</label>
+
+          <input
+            className="input"
+            type="password"
+            placeholder="Minimum 6 characters"
+            value={password}
+            onChange={e => setPassword(e.target.value)}
+          />
+
+        </div>
+
+        <button
+          className="btn btn-primary"
+          style={{width:"100%"}}
+          disabled={loading}
+        >
+          {loading
+            ? "Please wait..."
+            : mode === "login"
+              ? "Login"
+              : "Create Account"}
+        </button>
+
+        <br />
+
+        <button
+          type="button"
+          className="btn"
+          style={{width:"100%"}}
+          onClick={() =>
+            setPage(mode === "login" ? "signup" : "login")
+          }
+        >
+          {mode === "login"
+            ? "Create new account"
+            : "Already have an account?"}
+        </button>
+
+      </form>
+
+    </div>
+  );
+}
+
+/* ============================================================
+   DASHBOARD
+============================================================ */
+
+function Dashboard({ user }) {
+
+  const [data, setData] = useState(null);
+
+  const [goal, setGoal] = useState(
+    localStorage.getItem("ss_goal") || ""
+  );
+
+  const [loading, setLoading] = useState(false);
+
+  const [tasks, setTasks] = useState([
+    {
+      text: "30 minutes focused study",
+      done: false
+    },
+    {
+      text: "Practice coding for 45 minutes",
+      done: false
+    },
+    {
+      text: "Keep social media below 1 hour",
+      done: false
+    }
+  ]);
+
+  const chartRef = useRef(null);
+  const chartInstance = useRef(null);
+
+  function saveGoal() {
+
+    if (!goal.trim()) return;
+
+    localStorage.setItem("ss_goal", goal);
+
+    alert("Goal saved successfully!");
+
+  }
+
+  function handleFile(e) {
+
+    const file = e.target.files[0];
+
+    if (!file) return;
+
+    if (!file.name.endsWith(".csv")) {
+      alert("Please upload a CSV file.");
+      return;
+    }
+
+    setLoading(true);
+
+    const reader = new FileReader();
+
+    reader.onload = event => {
+
+      try {
+
+        const rows = parseCSV(event.target.result);
+
+        const analysis = analyzeScreenTime(rows);
+
+        setData(analysis);
+
+        localStorage.setItem(
+          "ss_last_analysis",
+          JSON.stringify(analysis)
+        );
+
+      } catch (err) {
+
+        alert(err.message);
+
+      }
+
+      setLoading(false);
+
+    };
+
+    reader.readAsText(file);
+  }
+
+  useEffect(() => {
+
+    const saved = localStorage.getItem("ss_last_analysis");
+
+    if (saved) {
+      setData(JSON.parse(saved));
+    }
+
+  }, []);
+
+  useEffect(() => {
+
+    if (!data || !chartRef.current) return;
+
+    if (chartInstance.current) {
+      chartInstance.current.destroy();
+    }
+
+    chartInstance.current = new Chart(
+      chartRef.current,
+      {
+        type: "doughnut",
+
+        data: {
+          labels: Object.keys(data.appUsage),
+
+          datasets: [{
+            data: Object.values(data.appUsage)
+          }]
+        },
+
+        options: {
+          responsive: true,
+          maintainAspectRatio: false
+        }
+      }
+    );
+
+  }, [data]);
+
+  const insights = data
+    ? generateInsights(data, goal)
+    : [];
+
+  return (
+
+    <main className="dashboard">
+
+      <div className="dashboard-header">
+
+        <div>
+          <h1>Hello, {user.name} 👋</h1>
+          <p>Let's turn your screen time into productive time.</p>
+        </div>
+
+      </div>
+
+      {/* UPLOAD */}
+
+      <div className="card upload">
+
+        <h2>📂 Upload Screen-Time CSV</h2>
+
+        <p style={{
+          color:"#667085",
+          marginTop:"8px"
+        }}>
+          Upload your exported phone usage CSV and ScreenSense AI
+          will analyze it automatically.
+        </p>
+
+        <input
+          type="file"
+          accept=".csv"
+          onChange={handleFile}
+        />
+
+      </div>
+
+      <br />
+
+      {loading && (
+
+        <div className="card loading">
+
+          <div className="spinner"></div>
+
+          <strong>Analyzing your screen time...</strong>
+
+        </div>
+
+      )}
+
+      {data && !loading && (
+
+        <>
+
+          {/* STATS */}
+
+          <div className="grid stats">
+
+            <div className="card">
+
+              <div className="stat-icon">⏱️</div>
+
+              <div className="stat-title">
+                Total Screen Time
+              </div>
+
+              <div className="stat-value">
+                {Math.floor(data.totalMinutes / 60)}h{" "}
+                {Math.round(data.totalMinutes % 60)}m
+              </div>
+
+            </div>
+
+            <div className="card">
+
+              <div className="stat-icon">📱</div>
+
+              <div className="stat-title">
+                Social Media
+              </div>
+
+              <div className="stat-value">
+                {Math.floor(data.socialMinutes / 60)}h{" "}
+                {Math.round(data.socialMinutes % 60)}m
+              </div>
+
+            </div>
+
+            <div className="card">
+
+              <div className="stat-icon">🎮</div>
+
+              <div className="stat-title">
+                Entertainment
+              </div>
+
+              <div className="stat-value">
+                {Math.floor(data.entertainmentMinutes / 60)}h{" "}
+                {Math.round(data.entertainmentMinutes % 60)}m
+              </div>
+
+            </div>
+
+            <div className="card">
+
+              <div className="stat-icon">📚</div>
+
+              <div className="stat-title">
+                Productive
+              </div>
+
+              <div className="stat-value">
+                {Math.floor(data.studyMinutes / 60)}h{" "}
+                {Math.round(data.studyMinutes % 60)}m
+              </div>
+
+            </div>
+
+          </div>
+
+          <br />
+
+          {/* GOAL */}
+
+          <div className="card">
+
+            <h2>🎯 Your Future Goal</h2>
+
+            <p style={{
+              color:"#667085",
+              margin:"7px 0 15px"
+            }}>
+              Tell ScreenSense AI what you want to achieve.
+            </p>
+
+            <div style={{
+              display:"flex",
+              gap:"10px",
+              flexWrap:"wrap"
+            }}>
+
+              <input
+                className="input"
+                style={{flex:1}}
+                placeholder="Example: Become an AI/ML engineer"
+                value={goal}
+                onChange={e => setGoal(e.target.value)}
+              />
+
+              <button
+                className="btn btn-primary"
+                onClick={saveGoal}
+              >
+                Save Goal
+              </button>
+
+            </div>
+
+          </div>
+
+          <br />
+
+          <div className="grid two">
+
+            {/* CHART */}
+
+            <div className="card">
+
+              <h2>📊 App Usage</h2>
+
+              <div className="chart-container">
+
+                <canvas ref={chartRef}></canvas>
+
+              </div>
+
+            </div>
+
+            {/* TOP APPS */}
+
+            <div className="card">
+
+              <h2>🔥 Most Used Apps</h2>
+
+              {data.sortedApps
+                .slice(0,6)
+                .map(([app, minutes]) => (
+
+                <div
+                  className="task"
+                  key={app}
+                >
+
+                  <span>{app}</span>
+
+                  <strong>
+                    {Math.round(minutes)} min
+                  </strong>
+
+                </div>
+
+              ))}
+
+            </div>
+
+          </div>
+
+          <br />
+
+          {/* AI INSIGHTS */}
+
+          <div className="card">
+
+            <h2>🤖 ScreenSense AI Coach</h2>
+
+            <p style={{
+              color:"#667085",
+              marginTop:"5px"
+            }}>
+              Personalized insights generated from your usage.
+            </p>
+
+            {insights.map((item, index) => (
+
+              <div
+                className="insight"
+                key={index}
+              >
+
+                <div style={{
+                  fontSize:"25px"
+                }}>
+                  {item.icon}
+                </div>
+
+                <div>
+
+                  <strong>{item.title}</strong>
+
+                  <p style={{
+                    color:"#667085",
+                    lineHeight:"1.5"
+                  }}>
+                    {item.text}
+                  </p>
+
+                </div>
+
+              </div>
+
+            ))}
+
+          </div>
+
+          <br />
+
+          {/* ACTION PLAN */}
+
+          <div className="card">
+
+            <h2>✅ Today's Action Plan</h2>
+
+            <p style={{
+              color:"#667085",
+              marginTop:"5px"
+            }}>
+              Don't just analyze your screen time. Act on it.
+            </p>
+
+            {tasks.map((task,index) => (
+
+              <div
+                className={`task ${task.done ? "done" : ""}`}
+                key={index}
+              >
+
+                <span>
+                  {task.text}
+                </span>
+
+                <button
+                  onClick={() => {
+
+                    const updated = [...tasks];
+
+                    updated[index].done =
+                      !updated[index].done;
+
+                    setTasks(updated);
+
+                  }}
+                >
+                  {task.done ? "Done ✓" : "Complete"}
+                </button>
+
+              </div>
+
+            ))}
+
+          </div>
+
+        </>
+
+      )}
+
+      {!data && !loading && (
+
+        <div className="card">
+
+          <h2>How it works</h2>
+
+          <br />
+
+          <p>1️⃣ Export your phone screen-time data.</p>
+          <br />
+          <p>2️⃣ Upload the CSV here.</p>
+          <br />
+          <p>3️⃣ ScreenSense analyzes your usage.</p>
+          <br />
+          <p>4️⃣ Set your future goal.</p>
+          <br />
+          <p>5️⃣ Get personalized tasks and recommendations.</p>
+
+        </div>
+
+      )}
+
+    </main>
+  );
+}
+
+/* ============================================================
+   ADMIN PANEL
+============================================================ */
+
+function Admin() {
+
+  const users = DB.users;
+
+  return (
+
+    <main className="dashboard">
+
+      <div className="dashboard-header">
+
+        <div>
+          <h1>Admin Panel 🛠️</h1>
+          <p>Manage ScreenSense AI users.</p>
+        </div>
+
+      </div>
+
+      <div className="grid stats">
+
+        <div className="card">
+
+          <div className="stat-title">
+            Registered Users
+          </div>
+
+          <div className="stat-value">
+            {users.length}
+          </div>
+
+        </div>
+
+        <div className="card">
+
+          <div className="stat-title">
+            Platform
+          </div>
+
+          <div className="stat-value">
+            Active
+          </div>
+
+        </div>
+
+        <div className="card">
+
+          <div className="stat-title">
+            AI Engine
+          </div>
+
+          <div className="stat-value">
+            Rule AI
+          </div>
+
+        </div>
+
+        <div className="card">
+
+          <div className="stat-title">
+            Database
+          </div>
+
+          <div className="stat-value">
+            Local
+          </div>
+
+        </div>
+
+      </div>
+
+      <br />
+
+      <div className="card">
+
+        <h2>Registered Users</h2>
+
+        <div className="table-wrapper">
+
+          <table>
+
+            <thead>
+
+              <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Email</th>
+              </tr>
+
+            </thead>
+
+            <tbody>
+
+              {users.map(user => (
+
+                <tr key={user.id}>
+
+                  <td>{user.id}</td>
+                  <td>{user.name}</td>
+                  <td>{user.email}</td>
+
+                </tr>
+
+              ))}
+
+            </tbody>
+
+          </table>
+
+        </div>
+
+      </div>
+
+    </main>
+  );
+}
+
+/* ============================================================
+   MAIN APP
+============================================================ */
+
+function App() {
+
+  const [page, setPage] = useState(
+    getCurrentUser() ? "dashboard" : "home"
+  );
+
+  const [user, setUser] = useState(
+    getCurrentUser()
+  );
+
+  return (
+
+    <div className="app">
+
+      <Navbar
+        user={user}
+        setPage={setPage}
+      />
+
+      {page === "home" && (
+        <Home setPage={setPage} />
+      )}
+
+      {page === "login" && (
+        <Auth
+          mode="login"
+          setPage={setPage}
+          setUser={setUser}
+        />
+      )}
+
+      {page === "signup" && (
+        <Auth
+          mode="signup"
+          setPage={setPage}
+          setUser={setUser}
+        />
+      )}
+
+      {page === "dashboard" && user && (
+        <Dashboard user={user} />
+      )}
+
+      {page === "admin" &&
+       user &&
+       user.email === "admin@screensense.ai" && (
+        <Admin />
+      )}
+
+    </div>
+  );
+}
+
+ReactDOM.createRoot(
+  document.getElementById("root")
+).render(<App />);
+
+</script>
+
+</body>
 </html>
