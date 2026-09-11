@@ -24,15 +24,26 @@ if (fileInput && fileStatus) {
 }
 
 if (analyzeBtn) {
-  analyzeBtn.addEventListener("click", () => {
-    if (!parsedData) {
-      alert("Please select a valid CSV file first.");
-      return;
-    }
-    // Store structured metrics in localStorage and navigate
-    localStorage.setItem("screenTimeReport", JSON.stringify(parsedData));
-    window.location.href = "dashboard.html";
+  analyzeBtn.addEventListener("click", async () => {
+  if (!parsedData) {
+    alert("Please select a valid CSV file first.");
+    return;
+  }
+
+  const file = fileInput.files[0];
+  const formData = new FormData();
+  formData.append("file", file);
+  formData.append("goal", "Reduce screen time");
+
+  const res = await fetch("http://127.0.0.1:8000/analyze", {
+    method: "POST",
+    body: formData
   });
+
+  const data = await res.json();
+  localStorage.setItem("screenTimeReport", JSON.stringify(data));
+  window.location.href = "dashboard.html";
+});
 }
 
 // Parses CSV lines expecting: App,DurationMinutes,Category,Day
