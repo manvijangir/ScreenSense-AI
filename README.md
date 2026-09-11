@@ -1,1 +1,1 @@
-# screensense-ai
+# ScreenSense-AI
