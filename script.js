@@ -110,9 +110,11 @@ function parseScreenTimeCSV(csvText) {
 const ctx = document.getElementById("weeklyChart");
 
 if (ctx) {
-  const cached = localStorage.getItem("screenTimeReport");
-  const data = cached ? JSON.parse(cached) : null;
+ async function loadDashboard() {
+  const res = await fetch("http://127.0.0.1:8000/analyze");
+  const data = await res.json();
 
+  
   if (data) {
     // 1. Update metric cards
     document.getElementById("totalScreenTime").textContent = formatHoursMins(data.totalMinutes);
@@ -167,4 +169,7 @@ function formatHoursMins(minutes) {
   const hrs = Math.floor(minutes / 60);
   const mins = Math.round(minutes % 60);
   return `${hrs}h ${mins}m`;
+
 }
+} 
+loadDashboard();
