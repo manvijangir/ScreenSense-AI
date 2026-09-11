@@ -1,1 +1,1 @@
-# campus-connect-demo
+# screensense-ai
